@@ -7,10 +7,10 @@ package cn.shzu.a_star;
  * @description point in the map
  * @date 2023/11/14 22:49:31
  */
-public class Node {
+public class Node implements Comparable<Node>{
     private Coordinate coordinate;
-    private Integer heuristicCost;
-    private Integer goalCost;
+    private Double heuristicCost = 0.0;
+    private Double goalCost = 0.0;
     private Node parentNode;
 
     public Coordinate getCoordinate() {
@@ -21,19 +21,19 @@ public class Node {
         this.coordinate = coordinate;
     }
 
-    public Integer getHeuristicCost() {
+    public Double getHeuristicCost() {
         return heuristicCost;
     }
 
-    public void setHeuristicCost(Integer heuristicCost) {
+    public void setHeuristicCost(Double heuristicCost) {
         this.heuristicCost = heuristicCost;
     }
 
-    public Integer getGoalCost() {
+    public Double getGoalCost() {
         return goalCost;
     }
 
-    public void setGoalCost(Integer goalCost) {
+    public void setGoalCost(Double goalCost) {
         this.goalCost = goalCost;
     }
 
@@ -45,7 +45,7 @@ public class Node {
         this.parentNode = parentNode;
     }
 
-    public Node(Coordinate coordinate, Integer heuristicCost, Integer goalCost, Node parentNode) {
+    public Node(Coordinate coordinate, Double heuristicCost, Double goalCost, Node parentNode) {
         this.coordinate = coordinate;
         this.heuristicCost = heuristicCost;
         this.goalCost = goalCost;
@@ -56,5 +56,15 @@ public class Node {
     }
 
 
-
+    @Override
+    public int compareTo(Node o) {
+        if (o == null) return -1;
+        if (this.getHeuristicCost() + this.getGoalCost() > o.getGoalCost()+ o.getHeuristicCost()){
+            return 1;
+        }
+        else if (this.getGoalCost()+ this.getHeuristicCost() < o.getGoalCost()+ o.getHeuristicCost()){
+            return -1;
+        }
+        return 0;
+    }
 }

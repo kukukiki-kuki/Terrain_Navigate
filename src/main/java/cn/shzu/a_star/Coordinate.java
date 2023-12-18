@@ -33,7 +33,9 @@ public class Coordinate {
         this.x = x;
         this.y = y;
     }
-
+    public int [] getLocation(){
+        return new int[]{x,y};
+    }
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

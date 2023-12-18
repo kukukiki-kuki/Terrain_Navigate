@@ -1,5 +1,7 @@
 package cn.shzu.a_star;
 
+import cn.shzu.utils.DEMReader;
+
 /**
  * @author soya
  * @version 1.0
@@ -8,7 +10,8 @@ package cn.shzu.a_star;
  * @date 2023/11/14 23:19:13
  */
 public class MapInformation {
-    private float[][] map;
+    private float[][] DemMap;
+    private float[][] SlopeMap;
     private int width;
     private int height;
     private Node start;
@@ -31,10 +34,11 @@ public class MapInformation {
     }
 
 
-    public MapInformation(String filePath,Node start,Node goal) {
-        this.map = DEMReader.readDEM(filePath);
-        this.height = map.length;
-        this.width = map[0].length;
+    public MapInformation(String DemFilePath, String SlopeFilePath,Node start,Node goal) {
+        this.DemMap = DEMReader.readDEM(DemFilePath);
+        this.SlopeMap = DEMReader.readDEM(SlopeFilePath);
+        this.height = DemMap.length;
+        this.width = DemMap[0].length;
         this.start = start;
         this.goal = goal;
     }
@@ -42,12 +46,20 @@ public class MapInformation {
 
     }
 
-    public float[][] getMap() {
-        return map;
+    public float[][] getDemMap() {
+        return SlopeMap;
     }
 
-    public void setMap(float[][] map) {
-        this.map = map;
+    public void setDemMap(float[][] demMap) {
+        DemMap = demMap;
+    }
+
+    public float[][] getSlopeMap() {
+        return SlopeMap;
+    }
+
+    public void setSlopeMap(float[][] slopeMap) {
+        SlopeMap = slopeMap;
     }
 
     public int getWidth() {

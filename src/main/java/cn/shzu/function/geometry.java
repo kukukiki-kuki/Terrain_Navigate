@@ -1,10 +1,10 @@
-package cn.shzu.utils;
+package cn.shzu.function;
 
-import cn.shzu.a_star.Coordinate;
+import cn.shzu.utils.Coordinate;
 import cn.shzu.rrt.TreeNode;
 import cn.shzu.rrt.TreeStruct;
+import cn.shzu.utils.Coordinate;
 
-import java.util.Collection;
 import java.util.Collections;
 
 /**
@@ -17,7 +17,6 @@ import java.util.Collections;
 
 
 public class geometry {
-    private static TreeStruct treeStruct;
     /**
      *
      * @param sNode 起始点
@@ -36,7 +35,7 @@ public class geometry {
      * @param sNode 起始点
      * @param eNode 目标点
      * @param r 最大距离限制
-     * @return
+     * @return 返回在线上的点是否会被障碍物阻碍
      */
     public static Iterable<TreeNode> esPointsAlongLine(TreeNode sNode,TreeNode eNode,int r){
         double distance = distBetweenPoints(sNode,eNode);

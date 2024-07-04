@@ -1,4 +1,4 @@
-package cn.shzu.a_star;
+package cn.shzu.utils;
 
 import java.util.Objects;
 
@@ -37,10 +37,10 @@ public class Coordinate {
         return new int[]{x,y};
     }
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Coordinate)) return false;
-        Coordinate that = (Coordinate) o;
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        Coordinate that = (Coordinate) obj;
         return x == that.x && y == that.y;
     }
 

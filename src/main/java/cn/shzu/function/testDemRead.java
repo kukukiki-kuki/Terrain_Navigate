@@ -1,4 +1,4 @@
-package cn.shzu.utils;
+package cn.shzu.function;
 import javax.media.jai.JAI;
 import javax.media.jai.RenderedOp;
 import java.awt.image.RenderedImage;

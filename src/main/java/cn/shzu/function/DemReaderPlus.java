@@ -1,4 +1,4 @@
-package cn.shzu.utils;
+package cn.shzu.function;
 
 /**
  * @author soya

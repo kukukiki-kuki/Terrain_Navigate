@@ -1,4 +1,4 @@
-package cn.shzu.a_star;
+package cn.shzu.ara;
 
 import cn.shzu.function.DEMReader;
 

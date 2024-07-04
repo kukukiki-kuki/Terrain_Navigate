@@ -1,6 +1,6 @@
 package cn.shzu.rrt;
 
-import cn.shzu.a_star.Coordinate;
+import cn.shzu.utils.Coordinate;
 
 import javax.swing.*;
 import java.time.temporal.Temporal;

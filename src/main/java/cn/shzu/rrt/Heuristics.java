@@ -1,7 +1,7 @@
 package cn.shzu.rrt;
 
-import cn.shzu.a_star.Coordinate;
-import cn.shzu.utils.geometry;
+import cn.shzu.utils.Coordinate;
+import cn.shzu.function.geometry;
 
 /**
  * @author soya

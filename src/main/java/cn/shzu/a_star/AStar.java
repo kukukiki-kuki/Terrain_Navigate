@@ -1,31 +1,34 @@
 package cn.shzu.a_star;
+import cn.shzu.utils.Coordinate;
+import cn.shzu.utils.MapConstruction;
+import cn.shzu.utils.Node;
+
 import java.util.*;
 
 /**
  * @author soya
  * @version 1.0
  * @project A_starOnDem
- * &#064;description  AStar algorithm detail
+ * &#064;description  ARAStar algorithm detail
  * {@code @date} 2023/11/14 22:47:19
  */
 public class AStar
 {
-    public final static int BAR = 1; // 障碍值
     public final static int PATH = 2; // 路径
     public final static double DIRECT_VALUE = 1; // 横竖移动代价
     public final static double OBLIQUE_VALUE = 1.4; // 斜移动代价
 
 
     Queue<Node> openList = new PriorityQueue<>(); // 优先队列(升序)
-    List<Node> closeList = new ArrayList<>();
+    Set<Coordinate> closeList = new HashSet<>();
 
     /**
      * 开始算法
      */
-    public void start(MapInformation mapInfo)
+    public void start(MapConstruction mapInfo)
     {
         if(mapInfo==null) return;
-        if (isObs(mapInfo.getGoal(),mapInfo)){
+        if (isObs(mapInfo.getGoalNode(),mapInfo)){
             System.out.println("目标点不可达");
             return;
         }
@@ -33,23 +36,41 @@ public class AStar
         openList.clear();
         closeList.clear();
         // 开始搜索
-        openList.add(mapInfo.getStart());
-        moveNodes(mapInfo,mapInfo.getGoal());
-        displayPath(mapInfo.getGoal());
+        openList.add(mapInfo.getStartNode());
+        moveNodes(mapInfo,mapInfo.getGoalNode());
+        displayPath(mapInfo.getGoalNode());
     }
-    public ArrayList<Node> start(MapInformation mapInfo, int n){
+
+
+
+    public void startVectorAndRaster(MapConstruction map){
+        if (map==null) return;
+        Node goalNode = map.getGoalNode();
+        Node startNode = map.getStartNode();
+        if (isObs(map.getGoalNode(),map)){
+            System.out.println("目标点不可达");
+            return;
+        }
+        openList.clear();
+        closeList.clear();
+        //开始搜索
+        openList.add(startNode);
+        moveNodes(map,goalNode);
+    }
+
+    public ArrayList<Node> start(MapConstruction mapInfo, int n){
         if(mapInfo==null) return null;
-        if (isObs(mapInfo.getGoal(),mapInfo)){
+        if (isObs(mapInfo.getGoalNode(),mapInfo)){
             System.out.println("目标点不可达");
             return null;
         }
         openList.clear();
         closeList.clear();
         //开始搜索
-        openList.add(mapInfo.getStart());
-        moveNodes(mapInfo,mapInfo.getGoal());
+        openList.add(mapInfo.getStartNode());
+        moveNodes(mapInfo,mapInfo.getGoalNode());
         ArrayList<Node> path= new ArrayList<>();
-        Node node = mapInfo.getGoal();
+        Node node = mapInfo.getGoalNode();
         while (node.getParentNode()!=null){
             path.add(node);
             node = node.getParentNode();
@@ -57,41 +78,44 @@ public class AStar
         return path;
     }
 
-    public double start(MapInformation mapInfo,int n,int k){
+    public double start(MapConstruction mapInfo,int n,int k){
         if(mapInfo==null) return -1;
-        if (isObs(mapInfo.getGoal(),mapInfo)){
+        if (isObs(mapInfo.getGoalNode(),mapInfo)){
             System.out.println("目标点不可达");
             return -1;
         }
         openList.clear();
         closeList.clear();
         //开始搜索
-        openList.add(mapInfo.getStart());
-        moveNodes(mapInfo,mapInfo.getGoal());
-        return mapInfo.getGoal().getGoalCost();
+        openList.add(mapInfo.getStartNode());
+        moveNodes(mapInfo,mapInfo.getGoalNode());
+        return mapInfo.getGoalNode().getGoalCost();
     }
 
-    public boolean isObs(Node node,MapInformation mapInfo){
+
+
+    public boolean isObs(Node node,MapConstruction map){
         int x = node.getCoordinate().getX();
         int y = node.getCoordinate().getY();
-        return mapInfo.getSlopeMap()[x][y] >= 25;
+        return map.getMapInfo()[x][y]==1;
     }
-
     /**
      * 移动当前结点
      */
-    private void moveNodes(MapInformation mapInfo,Node end)
+    private void moveNodes(MapConstruction map,Node end)
     {
         while (!openList.isEmpty())
         {
             Node current = openList.poll();
-            closeList.add(current);
-            System.out.println(Arrays.toString(current.getCoordinate().getLocation()));
-            addNeighborNodeInOpen(mapInfo,current);
+            closeList.add(current.getCoordinate());
+//            System.out.println("节点为 :"+Arrays.toString(current.getCoordinate().getLocation()));
+            addNeighborNodeInOpen(map,current);
             if (isCoordInClose(end.getCoordinate()))
             {
+                end = current;
+                map.setGoalNode(end);
                 System.out.println("到达目标");
-                System.out.println("总代价" + end.getGoalCost());
+                System.out.println("总代价:" + end.getGoalCost());
                 break;
             }
         }
@@ -118,102 +142,82 @@ public class AStar
     private void displayPath (Node end){
         ArrayList<int []> paths = new ArrayList<>();
         Node node = end;
+        int count = 0;
         while (node.getParentNode()!=null){
             paths.add(node.getCoordinate().getLocation());
             node = node.getParentNode();
         }
         for (int [] i:paths) {
             System.out.print(Arrays.toString(i));
+            count++;
         }
+        System.out.println();
+        System.out.println("节点数为："+count);
     }
 
 
     /**
      * 添加所有邻结点到open表
      */
-    private void addNeighborNodeInOpen(MapInformation mapInfo,Node current)
+    private void addNeighborNodeInOpen(MapConstruction mapInfo,Node current)
     {
-        int x = current.getCoordinate().getX();
-        int y = current.getCoordinate().getY();
+
+        Coordinate coordinate = current.getCoordinate();
+        int x = coordinate.getX();
+        int y = coordinate.getY();
         // 左
-        addNeighborNodeInOpen(mapInfo,current, x - 1, y, DIRECT_VALUE);
+        Coordinate coordinateLeft = new Coordinate(x - 1, y);
+        addNeighborNodeInOpen(mapInfo,current,  coordinateLeft, DIRECT_VALUE);
         // 上
-        addNeighborNodeInOpen(mapInfo,current, x, y - 1, DIRECT_VALUE);
+        Coordinate coordinateUp = new Coordinate(x , y-1);
+        addNeighborNodeInOpen(mapInfo,current, coordinateUp, DIRECT_VALUE);
         // 右
-        addNeighborNodeInOpen(mapInfo,current, x + 1, y, DIRECT_VALUE);
+        Coordinate coordinateRight = new Coordinate(x+1 , y);
+        addNeighborNodeInOpen(mapInfo,current,coordinateRight, DIRECT_VALUE);
         // 下
-        addNeighborNodeInOpen(mapInfo,current, x, y + 1, DIRECT_VALUE);
+        Coordinate coordinateDown = new Coordinate(x , y+1);
+        addNeighborNodeInOpen(mapInfo,current,coordinateDown, DIRECT_VALUE);
         // 左上
-        addNeighborNodeInOpen(mapInfo,current, x - 1, y - 1, OBLIQUE_VALUE);
+        Coordinate coordinateLU = new Coordinate(x-1 , y-1);
+        addNeighborNodeInOpen(mapInfo,current, coordinateLU, OBLIQUE_VALUE);
         // 右上
-        addNeighborNodeInOpen(mapInfo,current, x + 1, y - 1, OBLIQUE_VALUE);
+        Coordinate coordinateRU = new Coordinate(x+1 , y-1);
+        addNeighborNodeInOpen(mapInfo,current, coordinateRU, OBLIQUE_VALUE);
         // 右下
-        addNeighborNodeInOpen(mapInfo,current, x + 1, y + 1, OBLIQUE_VALUE);
+        Coordinate coordinateRD = new Coordinate(x+1 , y+1);
+        addNeighborNodeInOpen(mapInfo,current, coordinateRD, OBLIQUE_VALUE);
         // 左下
-        addNeighborNodeInOpen(mapInfo,current, x - 1, y + 1, OBLIQUE_VALUE);
+        Coordinate coordinateLD = new Coordinate(x-1 , y+1);
+        addNeighborNodeInOpen(mapInfo,current, coordinateLD, OBLIQUE_VALUE);
+
+
     }
     /**
      * 添加一个邻结点到open表
      */
-    private void addNeighborNodeInOpen(MapInformation mapInfo,Node current, int x, int y, double value)
+    private void addNeighborNodeInOpen(MapConstruction mapInfo,Node current, Coordinate coordinate, double value)
     {
-        if (canAddNodeToOpen(mapInfo,x, y))
+        if (canAddNodeToOpen(mapInfo, coordinate))
         {
-            Node end=mapInfo.getGoal();
-            Node start = mapInfo.getStart();
-            Coordinate coord = new Coordinate(x, y);
+            Node end = mapInfo.getGoalNode();
             double G = current.getGoalCost() + value; // 计算邻结点的G值
-            Node child = findNodeInOpen(coord);
+            Node child = findNodeInOpen(coordinate);
 //            检查新增节点是否访问过
-            if (child == null)
-            {
-                double H=calcH(end.getCoordinate(),coord,start.getCoordinate()); // 计算H值
-                if(isEndNode(end.getCoordinate(),coord))
-                {
-                    child=end;
-                    child.setParentNode(current);
-                    child.setGoalCost(G);
-                    child.setHeuristicCost(H);
-                }
-                else
-                {
-                    child = new Node(coord, H,G,current);
-                }
+            if (child == null) {
+                double H = calcH(end.getCoordinate(), coordinate, mapInfo.getStartNode().getCoordinate());
+                child = new Node(coordinate, H, G, 1.0, current);
+                child.setFCost();
                 openList.add(child);
-            }
-            else if (child.getGoalCost()> G)
-            {
+            } else if (child.getGoalCost() > G) {
+                openList.remove(child); // 移除旧的节点
                 child.setGoalCost(G);
                 child.setParentNode(current);
-                openList.add(child);
+                child.setFCost();
+                openList.add(child); // 重新插入更新后的节点
             }
         }
     }
 
-    /**
-     *
-     * @param mapInformation 地图信息
-     * @return 返回将道路信息添加后的地图
-     */
-    public float[][] executeVector2Raster(MapInformation mapInformation){
-        float[][] slopeMap = mapInformation.getSlopeMap();
-        System.out.println(slopeMap.length);
-        for (int i = 0; i < slopeMap.length; i++) {
-           slopeMap[500][i] = 100;
-           slopeMap[i][500] = 100;
-        }
-        for (int i = 0; i < slopeMap.length; i++) {
-            for (int j = 0; j < slopeMap[0].length; j++) {
-                if (i==j){
-                    slopeMap[i][j] =100;
-                }
-                if ((i+j)==slopeMap.length-1){
-                    slopeMap[i][j] = 100;
-                }
-            }
-        }
-        return slopeMap;
-    }
     /**
      * 从Open列表中查找结点
      */
@@ -242,18 +246,59 @@ public class AStar
         return dx + dy - ((2-Math.sqrt(2))*Math.min(dx,dy));
     }
 
+    /**
+     *
+     * @param end 终点
+     * @param coord 现有点
+     * @param start 起点
+     * @return 返回权重改变的欧式距离
+     */
+    public double weightDistanceImprove(Coordinate end,Coordinate coord,Coordinate start){
+        double w = 1 + (calcDiag(end,coord)/calcDiag(end,start));
+        return w*(calcDiag(end,coord) + calcCross(start,end,coord)/calcDiag(end,start));
+    }
 
+    /**
+     *
+     * @param end 终点
+     * @param coord 当前点
+     * @param map 权重地图
+     * @return 返回H值
+     */
+    public double weightMapImprove(Coordinate end,Coordinate coord,double [][] map){
+        return (Math.sqrt(Math.pow(end.getY()-coord.getY(),2)+Math.pow(end.getX()-coord.getX(),2)) * DIRECT_VALUE ) + map[coord.getX()][coord.getY()];
+    }
+
+    public double ChebyshevDistance(Coordinate end, Coordinate coord){
+        int dx = Math.abs(coord.getX()-end.getX());
+        int dy = Math.abs(coord.getY()-end.getY());
+        return Math.max(dx,dy);
+    }
+    public double NormalDistributionOfConstants(Coordinate end, Coordinate coord,Coordinate start){
+        double mean,stdDev,x,Q;
+        mean = Math.sqrt(Math.pow(end.getY()-start.getY(),2)+Math.pow(end.getX()-start.getX(),2))* DIRECT_VALUE;
+        x = Math.sqrt(Math.pow(end.getY()-coord.getY(),2)+Math.pow(end.getX()-coord.getX(),2)) * DIRECT_VALUE;
+        stdDev = 1.0;
+        Q = Math.exp(-0.5 * Math.pow((x - mean) / stdDev, 2)) / (stdDev * Math.sqrt(2 * Math.PI));
+        return (0.9+Q)*x;
+    }
     /**
      * 计算H的估值：欧式距离
      */
     private double calcH(Coordinate end, Coordinate coord,Coordinate start)
     {
+        //1、曼哈顿距离
 //     return (Math.abs(end.getX() - coord.getX()) + Math.abs(end.getY() - coord.getY())) * DIRECT_VALUE;
-//       return Math.sqrt(Math.pow(end.getY()-coord.getY(),2)+Math.pow(end.getX()-coord.getX(),2)) * DIRECT_VALUE;
-        //权重计算
-        double w = 1 + (calcDiag(end,coord)/calcDiag(end,start));
-        return w*(calcDiag(end,coord) + calcCross(start,end,coord)/calcDiag(end,start));
+        //2、传统欧式距离
+       return Math.sqrt(Math.pow(end.getY()-coord.getY(),2)+Math.pow(end.getX()-coord.getX(),2)) * DIRECT_VALUE;
+//       3、 步长权重欧式距离
+//        return weightDistanceImprove(end,coord,start);
+        //4、切比雪夫距离 无效
+//        return ChebyshevDistance(end,coord);
+        //5、常数补偿与正态分布思想。
+//        return NormalDistributionOfConstants(end,coord,start);
     }
+
 
     /**
      * 判断结点是否是最终结点
@@ -266,37 +311,25 @@ public class AStar
     /**
      * 判断结点能否放入Open列表
      */
-    private boolean canAddNodeToOpen(MapInformation mapInfo,int x, int y)
+    private boolean canAddNodeToOpen(MapConstruction mapInfo,Coordinate coord)
     {
+        int x = coord.getX();
+        int y = coord.getY();
         // 是否在地图中
-        if (x < 0 || x >= mapInfo.getWidth() || y < 0 || y >= mapInfo.getHeight()) return false;
+        if (x < 0 || x >= mapInfo.getHeight() || y < 0 || y >= mapInfo.getWidth()) return false;
         // 判断是否是不可通过的结点
-        if (mapInfo.getSlopeMap()[x][y] >= 20) return false;
+        if (mapInfo.getMapInfo()[x][y]==1) return false;
         // 判断结点是否存在close表
-        return !isCoordInClose(x, y);
+        return !isCoordInClose(coord);
     }
 
     /**
      * 判断坐标是否在close表中
      */
-    private boolean isCoordInClose(Coordinate coord)
-    {
-        return coord!=null&&isCoordInClose(coord.getX(), coord.getY());
+    private boolean isCoordInClose(Coordinate coord) {
+        return closeList.contains(coord);
     }
 
-    /**
-     * 判断坐标是否在close表中
-     */
-    private boolean isCoordInClose(int x, int y)
-    {
-        if (closeList.isEmpty()) return false;
-        for (Node node : closeList)
-        {
-            if (node.getCoordinate().getX() == x && node.getCoordinate().getY() == y)
-            {
-                return true;
-            }
-        }
-        return false;
-    }
+
+
 }

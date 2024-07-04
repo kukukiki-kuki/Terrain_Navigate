@@ -1,6 +1,6 @@
 package cn.shzu.rrt;
 
-import cn.shzu.utils.Coordinate;
+
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -13,12 +13,11 @@ import java.util.Arrays;
  * @date 2023/12/8 16:02:59
  */
 public class RRTBase {
-    private TreeStruct treeStruct;
-    private TreeNode startNode, goalNode;
+    private final TreeStruct treeStruct;
+    private final TreeNode startNode;
     private int [] Q = {1,4};
 
     public RRTBase(TreeNode startNode,TreeNode goalNode){
-        this.goalNode = goalNode;
         this.startNode = startNode;
         this.treeStruct = new TreeStruct(startNode,goalNode);
 

@@ -1,6 +1,6 @@
 package cn.shzu.rrt;
 
-import cn.shzu.utils.Coordinate;
+
 import cn.shzu.function.geometry;
 
 /**
